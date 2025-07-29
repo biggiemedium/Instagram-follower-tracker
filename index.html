@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Relationship Analyzer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Instagram Relationship Analyzer</h1>
+        <p>Analyze your Instagram following and followers relationships with advanced filtering</p>
+    </div>
+
+    <div class="upload-section">
+        <div class="drop-zone" id="followersZone" onclick="document.getElementById('followersFile').click()">
+            <div class="drop-zone-content">
+                <div class="file-icon">👥</div>
+                <h3>Followers JSON</h3>
+                <p>Drop your followers.json file here<br>
+                    <small>Contains people who follow you</small></p>
+            </div>
+            <input type="file" id="followersFile" class="file-input" accept=".json">
+        </div>
+
+        <div class="drop-zone" id="followingZone" onclick="document.getElementById('followingFile').click()">
+            <div class="drop-zone-content">
+                <div class="file-icon">➡️</div>
+                <h3>Following JSON</h3>
+                <p>Drop your following.json file here<br>
+                    <small>Contains people you follow</small></p>
+            </div>
+            <input type="file" id="followingFile" class="file-input" accept=".json">
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <h3>Analyzing your Instagram data...</h3>
+        <p>Please wait while we process your files</p>
+    </div>
+
+    <div class="stats-overview" id="statsOverview">
+        <div class="stat-card">
+            <h3>Following</h3>
+            <div class="number" id="totalFollowing">0</div>
+            <div class="description">People you follow</div>
+        </div>
+        <div class="stat-card">
+            <h3>Followers</h3>
+            <div class="number" id="totalFollowers">0</div>
+            <div class="description">People following you</div>
+        </div>
+        <div class="stat-card">
+            <h3>Mutual Follows</h3>
+            <div class="number" id="mutualCount">0</div>
+            <div class="description">Follow each other</div>
+        </div>
+        <div class="stat-card">
+            <h3>Follow Ratio</h3>
+            <div class="number" id="followRatio">0</div>
+            <div class="description">Following/Followers</div>
+        </div>
+        <div class="stat-card">
+            <h3>Not Following Back</h3>
+            <div class="number" id="notFollowingBack">0</div>
+            <div class="description">You follow, they don't</div>
+        </div>
+        <div class="stat-card">
+            <h3>Don't Follow Back</h3>
+            <div class="number" id="dontFollowBack">0</div>
+            <div class="description">They follow, you don't</div>
+        </div>
+    </div>
+
+    <div class="controls-section" id="controlsSection">
+        <div class="controls-grid">
+            <div class="control-group">
+                <label for="relationshipFilter">Relationship Type</label>
+                <select id="relationshipFilter">
+                    <option value="all">All Relationships</option>
+                    <option value="mutual">Mutual Follows</option>
+                    <option value="following_only">You Follow Only</option>
+                    <option value="follower_only">They Follow Only</option>
+                    <option value="following">All Following</option>
+                    <option value="followers">All Followers</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="timeFilter">Time Range</label>
+                <select id="timeFilter">
+                    <option value="all">All Time</option>
+                    <option value="week">Last Week</option>
+                    <option value="month">Last Month</option>
+                    <option value="3months">Last 3 Months</option>
+                    <option value="year">Last Year</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="sortFilter">Sort By</label>
+                <select id="sortFilter">
+                    <option value="recent">Most Recent</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="alphabetical">Alphabetical</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="searchFilter">Search Username</label>
+                <input type="text" id="searchFilter" placeholder="Search by username...">
+            </div>
+        </div>
+        <div class="control-buttons">
+            <button class="btn primary" onclick="applyFilters()">Apply Filters</button>
+            <button class="btn secondary" onclick="exportData()">Export CSV</button>
+            <button class="btn" onclick="generateDetailedReport()">Detailed Report</button>
+            <button class="btn" onclick="findSuspicious()">Find Suspicious</button>
+            <button class="btn" onclick="clearFilters()">Clear Filters</button>
+        </div>
+    </div>
+
+    <div class="analysis-section" id="analysisSection">
+        <div class="section-header">
+            <h2>Analysis Results</h2>
+            <div class="results-counter">
+                <span id="filteredCount">0</span> results
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('overview')">Overview</button>
+            <button class="tab" onclick="switchTab('relationships')">Relationships</button>
+            <button class="tab" onclick="switchTab('activity')">Activity</button>
+            <button class="tab" onclick="switchTab('insights')">Insights</button>
+            <button class="tab" onclick="switchTab('timeline')">Timeline</button>
+        </div>
+
+        <div class="tab-content active" id="overview">
+            <div class="results-grid" id="overviewResults">
+                <!-- Overview content will be populated here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="relationships">
+            <div class="results-grid" id="relationshipResults">
+                <!-- Relationship analysis will be populated here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="activity">
+            <div class="results-grid" id="activityResults">
+                <!-- Activity analysis will be populated here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="insights">
+            <div class="results-grid" id="insightResults">
+                <!-- Insights will be populated here -->
+            </div>
+        </div>
+
+        <div class="tab-content" id="timeline">
+            <div class="timeline-container" id="timelineResults">
+                <!-- Timeline will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Instagram Relationship Analyzer - Built for comprehensive social media analysis</p>
+        <p>Your data is processed locally and never sent to any servers</p>
+    </div>
+</div>
+
+<script src="index.js"></script>
+</body>
+</html>
