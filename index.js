@@ -51,18 +51,36 @@ class InstagramAnalyzer {
     // Extract user data from JSON with timestamps and URLs
     extractUserData(data, key = null) {
         let users = [];
-        let sourceArray = key ? data[key] : data;
+        let sourceArray;
+
+        // Handle following.json format (has relationships_following key)
+        if (key && data[key]) {
+            sourceArray = data[key];
+        }
+        // Handle followers.json format (direct array)
+        else if (Array.isArray(data)) {
+            sourceArray = data;
+        }
+        // Fallback for other formats
+        else {
+            console.warn('Unexpected data format');
+            return [];
+        }
 
         if (!Array.isArray(sourceArray)) {
-            console.warn('Data is not an array, attempting to extract...');
+            console.warn('Data is not an array');
             return [];
         }
 
         sourceArray.forEach(item => {
             if (item.string_list_data && item.string_list_data.length > 0) {
                 const userData = item.string_list_data[0];
+
+                // Handle both formats: followers has "value" field, following might not
+                const username = userData.value || userData.href.split('/').pop();
+
                 users.push({
-                    username: userData.value,
+                    username: username,
                     url: userData.href,
                     timestamp: userData.timestamp,
                     followDate: new Date(userData.timestamp * 1000),
